@@ -21,3 +21,6 @@ Auth::routes();
 Route::get('/home', 'HomeController@index');
 
 Route::resource('holiday', 'HolidayController');
+
+Route::get('/auth/facebook', 'Auth\SocialController@redirectToProvider');
+Route::get('/auth/facebook/callback', 'Auth\SocialController@handleProviderCallback');

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Holiday;
 use Session;
+use Facebook;
+use Socialite;
 
 class HolidayController extends Controller
 {
@@ -25,6 +27,16 @@ class HolidayController extends Controller
      */
     public function index()
     {
+       
+
+        //$fb = \App::make('SammyK\LaravelFacebookSdk\LaravelFacebookSdk');
+        $token='EAAB1ZAviVKFkBAH1rX25smFHPtuDtoDHvzZCN7K2uu6IIhDEoCMTd9t5WW8w7cP93hRYwC6qTVZCsdB5FFpVUGDcywts0o20CXLHAPoAZBcZCe8PEi3a2ZCAKEVt8UYM9kpXTklkozaucskawphHCOU88k5mPrf7MnjjUlytvfTwZDZD';
+        $user = Socialite::driver('facebook')->fields(['user_events'])->userFromToken($token);
+        dd($user);
+        // Facebook::setDefaultAccessToken($token);
+        // $response = Facebook::get('/me/events');
+        // dd($response);
+
         $holidays = Holiday::all();
 
         return view('index',compact('holidays'));

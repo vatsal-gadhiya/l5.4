@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Notifications\Notifiable;
+use App\Notifications\WelcomeEmail;
+use App\Mail\UserCreated;
+use Mail;
 
 class RegisterController extends Controller
 {
@@ -21,6 +26,7 @@ class RegisterController extends Controller
     */
 
     use RegistersUsers;
+    use Notifiable;
 
     /**
      * Where to redirect users after registration.
@@ -52,6 +58,57 @@ class RegisterController extends Controller
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|min:6|confirmed',
         ]);
+    }
+
+
+    /**
+     * Handle a registration request for the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function register(Request $request)
+    {
+        $this->validator($request->all())->validate();
+        $data = $request->all();
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+        ]);
+
+        $content = [
+
+            'title'=> 'Itsolutionstuff.com mail', 
+
+            'body'=> 'The body of your message.',
+
+            'button' => 'Click Here'
+
+        ];
+
+
+        // Mail::to('vatsalgadhiya777@gmail.com')
+        //  ->queue(new UserCreated($content));
+
+        $user->notify(new WelcomeEmail($content));
+
+        // Send the activation email
+        // $email = $data['email'];
+        // $first_name = $data['name'];
+
+        // Mail::send(
+        //         'email_template.welcome', ['code' => $code, 'email' => $email, 'first_name' => $first_name], function ($message) use ($email) {
+        //     $message->to($email)
+        //             ->subject('Welcome to Life Process');
+        //     $bcc = explode(',', config('srtpl.bccmail'));
+        //     if (!empty($bcc)) {
+        //         $message->bcc($bcc);
+        //     }
+        // });
+        session()->flash('success', "You are registered successfully. Check Your Mail Activation Link Send to Your Mail.");
+        //return $user;
+        return redirect()->route('login');
     }
 
     /**
